@@ -1,4 +1,4 @@
--- MEXSTRO Red Theme GUI (Knife Duels UI)
+-- MEXSTRO GUI (Knife Duels)
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
@@ -6,12 +6,11 @@ local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
--- ძველი მენიუს წაშლა
+-- ძველი GUI-ს წაშლა
 if CoreGui:FindFirstChild("MEXSTRO_GUI") then
     CoreGui.MEXSTRO_GUI:Destroy()
 end
 
--- ScreenGui-ს შექმნა
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "MEXSTRO_GUI"
 ScreenGui.ResetOnSpawn = false
@@ -29,34 +28,44 @@ end
 local AimbotEnabled = false
 local ShowFOV = false
 local AimFOV = 120
-local AimBone = "Head"
 local Smoothness = 0.25
 
 local ChamsEnabled = false
 local ChamsColor = Color3.fromRGB(255, 30, 30)
 
--- FOV Circle (წრე)
-local FOVCircle = Drawing.new("Circle")
-FOVCircle.Thickness = 1.5
-FOVCircle.Color = Color3.fromRGB(255, 50, 50)
-FOVCircle.Filled = false
-FOVCircle.Transparency = 1
-FOVCircle.Visible = false
+-- FOV Circle Visual (GUI Based - 100% მუშაობს მობილურზე)
+local FOVFrame = Instance.new("Frame")
+FOVFrame.Name = "FOVFrame"
+FOVFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+FOVFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+FOVFrame.Size = UDim2.new(0, AimFOV * 2, 0, AimFOV * 2)
+FOVFrame.BackgroundTransparency = 1
+FOVFrame.Visible = false
+FOVFrame.Parent = ScreenGui
 
-RunService.RenderStepped:Connect(function()
-    FOVCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-    FOVCircle.Radius = AimFOV
-    FOVCircle.Visible = ShowFOV
-end)
+local FOVCorner = Instance.new("UICorner")
+FOVCorner.CornerRadius = UDim.new(1, 0)
+FOVCorner.Parent = FOVFrame
 
--- Aimbot-ის ლოგიკა
+local FOVStroke = Instance.new("UIStroke")
+FOVStroke.Color = Color3.fromRGB(255, 50, 50)
+FOVStroke.Thickness = 1.5
+FOVStroke.Transparency = 0.2
+FOVStroke.Parent = FOVFrame
+
+local function UpdateFOVVisual()
+    FOVFrame.Size = UDim2.new(0, AimFOV * 2, 0, AimFOV * 2)
+    FOVFrame.Visible = ShowFOV
+end
+
+-- Target Finder (HumanoidRootPart / ტანი)
 local function GetClosestTarget()
     local Closest = nil
     local MaxDistance = AimFOV
 
     for _, v in pairs(Players:GetPlayers()) do
         if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
-            local TargetPart = v.Character:FindFirstChild(AimBone)
+            local TargetPart = v.Character:FindFirstChild("HumanoidRootPart") or v.Character:FindFirstChild("Torso")
             if TargetPart then
                 local ScreenPos, OnScreen = Camera:WorldToViewportPoint(TargetPart.Position)
                 if OnScreen then
@@ -85,7 +94,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ESP (Chams)-ის ფუნქცია
+-- ESP (Chams)
 local function UpdateChams()
     for _, v in pairs(Players:GetPlayers()) do
         if v ~= LocalPlayer and v.Character then
@@ -109,7 +118,7 @@ local function UpdateChams()
     end
 end
 
--- მთავარი ფანჯარა (Red Theme)
+-- მთავარი ფანჯარა
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 310, 0, 360)
@@ -129,11 +138,11 @@ UIStroke.Color = Color3.fromRGB(220, 38, 38)
 UIStroke.Thickness = 2.5
 UIStroke.Parent = MainFrame
 
--- სათაური
+-- სათაური (მხოლოდ MEXSTRO)
 local Header = Instance.new("TextLabel")
 Header.Size = UDim2.new(1, 0, 0, 45)
 Header.BackgroundColor3 = Color3.fromRGB(35, 18, 22)
-Header.Text = "  🔴 MEXSTRO | Red Edition"
+Header.Text = "  MEXSTRO"
 Header.TextColor3 = Color3.fromRGB(255, 255, 255)
 Header.TextSize = 18
 Header.Font = Enum.Font.GothamBold
@@ -144,13 +153,13 @@ local HeaderCorner = Instance.new("UICorner")
 HeaderCorner.CornerRadius = UDim.new(0, 14)
 HeaderCorner.Parent = Header
 
--- ჩაკეცვის ღილაკი ეკრანის კუთხეში (Mobile Open/Close Toggle)
+-- ჩაკეცვის ღილაკი ეკრანზე
 local OpenBtn = Instance.new("TextButton")
-OpenBtn.Size = UDim2.new(0, 50, 0, 50)
-OpenBtn.Position = UDim2.new(0, 15, 0.5, -25)
+OpenBtn.Size = UDim2.new(0, 45, 0, 45)
+OpenBtn.Position = UDim2.new(0, 15, 0.5, -22)
 OpenBtn.BackgroundColor3 = Color3.fromRGB(220, 38, 38)
 OpenBtn.Text = "🔴"
-OpenBtn.TextSize = 22
+OpenBtn.TextSize = 20
 OpenBtn.Active = true
 OpenBtn.Draggable = true
 OpenBtn.Parent = ScreenGui
@@ -203,7 +212,7 @@ local function CreateButton(text, callback)
     return btn
 end
 
--- 1. Aimbot ღილაკი
+-- 1. Aimbot Toggle
 CreateButton("Aimbot: OFF", function(btn, stroke)
     AimbotEnabled = not AimbotEnabled
     if AimbotEnabled then
@@ -217,7 +226,7 @@ CreateButton("Aimbot: OFF", function(btn, stroke)
     end
 end)
 
--- 2. FOV წრის გამოჩენა
+-- 2. FOV Circle Toggle
 CreateButton("Show FOV Circle: OFF", function(btn, stroke)
     ShowFOV = not ShowFOV
     if ShowFOV then
@@ -229,9 +238,10 @@ CreateButton("Show FOV Circle: OFF", function(btn, stroke)
         btn.BackgroundColor3 = Color3.fromRGB(40, 25, 30)
         stroke.Color = Color3.fromRGB(80, 40, 45)
     end
+    UpdateFOVVisual()
 end)
 
--- 3. FOV ზომის ტექსტი და მომატება/დაკლება
+-- 3. FOV Label & Controls
 local FOVLabel = Instance.new("TextLabel")
 FOVLabel.Size = UDim2.new(1, 0, 0, 25)
 FOVLabel.BackgroundTransparency = 1
@@ -245,6 +255,7 @@ CreateButton("Increase FOV (+15)", function()
     if AimFOV < 250 then
         AimFOV = AimFOV + 15
         FOVLabel.Text = "Aimbot FOV Radius: " .. tostring(AimFOV) .. " px"
+        UpdateFOVVisual()
     end
 end)
 
@@ -252,6 +263,7 @@ CreateButton("Decrease FOV (-15)", function()
     if AimFOV > 40 then
         AimFOV = AimFOV - 15
         FOVLabel.Text = "Aimbot FOV Radius: " .. tostring(AimFOV) .. " px"
+        UpdateFOVVisual()
     end
 end)
 
