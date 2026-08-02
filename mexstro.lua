@@ -1,8 +1,9 @@
--- MEXSTRO Dark Edition GUI (Knife Duels)
+-- MEXSTRO Dark Edition (Knife Duels UI)
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
@@ -25,15 +26,13 @@ else
 end
 
 -- ცვლადები
-local AimbotEnabled = false
 local ShowFOV = false
 local AimFOV = 120
-local Smoothness = 0.25
 
 local ChamsEnabled = false
 local ChamsColor = Color3.fromRGB(200, 200, 200)
 
--- FOV Circle Visual (GUI Based - მობილურზე 100% მუშაობს)
+-- FOV Circle Visual (ეკრანზე წრის გამოჩენა)
 local FOVFrame = Instance.new("Frame")
 FOVFrame.Name = "FOVFrame"
 FOVFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -60,42 +59,6 @@ RunService.RenderStepped:Connect(function()
     FOVFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 end)
 
--- Target Finder (ტანი / RootPart)
-local function GetClosestTarget()
-    local Closest = nil
-    local MaxDistance = AimFOV
-
-    for _, v in pairs(Players:GetPlayers()) do
-        if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
-            local TargetPart = v.Character:FindFirstChild("HumanoidRootPart") or v.Character:FindFirstChild("Torso")
-            if TargetPart then
-                local ScreenPos, OnScreen = Camera:WorldToViewportPoint(TargetPart.Position)
-                if OnScreen then
-                    local MousePos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-                    local Distance = (Vector2.new(ScreenPos.X, ScreenPos.Y) - MousePos).Magnitude
-                    
-                    if Distance < MaxDistance then
-                        MaxDistance = Distance
-                        Closest = TargetPart
-                    end
-                end
-            end
-        end
-    end
-    return Closest
-end
-
-RunService.RenderStepped:Connect(function()
-    if AimbotEnabled then
-        local Target = GetClosestTarget()
-        if Target then
-            local CurrentCF = Camera.CFrame
-            local TargetCF = CFrame.new(Camera.CFrame.Position, Target.Position)
-            Camera.CFrame = CurrentCF:Lerp(TargetCF, Smoothness)
-        end
-    end
-end)
-
 -- ESP (Chams)
 local function UpdateChams()
     for _, v in pairs(Players:GetPlayers()) do
@@ -120,12 +83,12 @@ local function UpdateChams()
     end
 end
 
--- მთავარი ფანჯარა (Black Theme)
+-- მთავარი ფანჯარა (Clean Dark Theme)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 310, 0, 360)
-MainFrame.Position = UDim2.new(0.5, -155, 0.5, -180)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.Size = UDim2.new(0, 310, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -155, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
@@ -136,14 +99,14 @@ UICorner.CornerRadius = UDim.new(0, 14)
 UICorner.Parent = MainFrame
 
 local UIStroke = Instance.new("UIStroke")
-UIStroke.Color = Color3.fromRGB(60, 60, 60)
+UIStroke.Color = Color3.fromRGB(50, 50, 55)
 UIStroke.Thickness = 2
 UIStroke.Parent = MainFrame
 
 -- სათაური
 local Header = Instance.new("TextLabel")
 Header.Size = UDim2.new(1, 0, 0, 45)
-Header.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Header.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 Header.Text = "  MEXSTRO"
 Header.TextColor3 = Color3.fromRGB(255, 255, 255)
 Header.TextSize = 18
@@ -155,11 +118,11 @@ local HeaderCorner = Instance.new("UICorner")
 HeaderCorner.CornerRadius = UDim.new(0, 14)
 HeaderCorner.Parent = Header
 
--- ჩაკეცვის ღილაკი ეკრანზე (Black Toggle)
+-- ჩაკეცვის ღილაკი ეკრანზე (Black Circle Toggle)
 local OpenBtn = Instance.new("TextButton")
 OpenBtn.Size = UDim2.new(0, 45, 0, 45)
 OpenBtn.Position = UDim2.new(0, 15, 0.5, -22)
-OpenBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+OpenBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
 OpenBtn.Text = "⚫"
 OpenBtn.TextSize = 20
 OpenBtn.Active = true
@@ -171,7 +134,7 @@ OpenBtnCorner.CornerRadius = UDim.new(1, 0)
 OpenBtnCorner.Parent = OpenBtn
 
 local OpenBtnStroke = Instance.new("UIStroke")
-OpenBtnStroke.Color = Color3.fromRGB(80, 80, 80)
+OpenBtnStroke.Color = Color3.fromRGB(80, 80, 90)
 OpenBtnStroke.Thickness = 1.5
 OpenBtnStroke.Parent = OpenBtn
 
@@ -185,19 +148,19 @@ Scroll.Size = UDim2.new(1, -20, 1, -55)
 Scroll.Position = UDim2.new(0, 10, 0, 50)
 Scroll.BackgroundTransparency = 1
 Scroll.ScrollBarThickness = 3
-Scroll.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
-Scroll.CanvasSize = UDim2.new(0, 0, 0, 330)
+Scroll.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 110)
+Scroll.CanvasSize = UDim2.new(0, 0, 0, 250)
 Scroll.Parent = MainFrame
 
 local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.Parent = Scroll
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 8)
+UIListLayout.Padding = UDim.new(0, 10)
 
 local function CreateButton(text, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, 0, 0, 40)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
     btn.Text = text
     btn.TextColor3 = Color3.fromRGB(240, 240, 240)
     btn.Font = Enum.Font.GothamMedium
@@ -209,7 +172,7 @@ local function CreateButton(text, callback)
     corner.Parent = btn
     
     local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(60, 60, 60)
+    stroke.Color = Color3.fromRGB(55, 55, 65)
     stroke.Thickness = 1
     stroke.Parent = btn
 
@@ -219,69 +182,106 @@ local function CreateButton(text, callback)
     return btn
 end
 
--- 1. Aimbot Toggle
-CreateButton("Aimbot: OFF", function(btn, stroke)
-    AimbotEnabled = not AimbotEnabled
-    if AimbotEnabled then
-        btn.Text = "Aimbot: ON"
-        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        stroke.Color = Color3.fromRGB(255, 255, 255)
-    else
-        btn.Text = "Aimbot: OFF"
-        btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-        stroke.Color = Color3.fromRGB(60, 60, 60)
-    end
-end)
-
--- 2. Show FOV Circle Toggle
+-- 1. FOV Circle Toggle
 CreateButton("Show FOV Circle: OFF", function(btn, stroke)
     ShowFOV = not ShowFOV
     if ShowFOV then
         btn.Text = "Show FOV Circle: ON"
-        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
         stroke.Color = Color3.fromRGB(255, 255, 255)
     else
         btn.Text = "Show FOV Circle: OFF"
-        btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-        stroke.Color = Color3.fromRGB(60, 60, 60)
+        btn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+        stroke.Color = Color3.fromRGB(55, 55, 65)
     end
 end)
 
--- 3. FOV Controls
-local FOVLabel = Instance.new("TextLabel")
-FOVLabel.Size = UDim2.new(1, 0, 0, 25)
-FOVLabel.BackgroundTransparency = 1
-FOVLabel.Text = "Aimbot FOV Radius: " .. tostring(AimFOV) .. " px"
-FOVLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-FOVLabel.Font = Enum.Font.Gotham
-FOVLabel.TextSize = 14
-FOVLabel.Parent = Scroll
+-- 2. FOV SLIDER (გადასაწევი სლაიდერი მობილურისთვის)
+local SliderContainer = Instance.new("Frame")
+SliderContainer.Size = UDim2.new(1, 0, 0, 55)
+SliderContainer.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+SliderContainer.Parent = Scroll
 
-CreateButton("Increase FOV (+15)", function()
-    if AimFOV < 250 then
-        AimFOV = AimFOV + 15
-        FOVLabel.Text = "Aimbot FOV Radius: " .. tostring(AimFOV) .. " px"
+local SliderCorner = Instance.new("UICorner")
+SliderCorner.CornerRadius = UDim.new(0, 8)
+SliderCorner.Parent = SliderContainer
+
+local SliderStroke = Instance.new("UIStroke")
+SliderStroke.Color = Color3.fromRGB(55, 55, 65)
+SliderStroke.Thickness = 1
+SliderStroke.Parent = SliderContainer
+
+local SliderLabel = Instance.new("TextLabel")
+SliderLabel.Size = UDim2.new(1, -20, 0, 20)
+SliderLabel.Position = UDim2.new(0, 10, 0, 6)
+SliderLabel.BackgroundTransparency = 1
+SliderLabel.Text = "FOV Size: " .. tostring(AimFOV) .. " px"
+SliderLabel.TextColor3 = Color3.fromRGB(220, 220, 230)
+SliderLabel.Font = Enum.Font.GothamMedium
+SliderLabel.TextSize = 13
+SliderLabel.TextXAlignment = Enum.TextXAlignment.Left
+SliderLabel.Parent = SliderContainer
+
+local SliderBar = Instance.new("Frame")
+SliderBar.Size = UDim2.new(1, -20, 0, 8)
+SliderBar.Position = UDim2.new(0, 10, 0, 34)
+SliderBar.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+SliderBar.Parent = SliderContainer
+
+local BarCorner = Instance.new("UICorner")
+BarCorner.CornerRadius = UDim.new(1, 0)
+BarCorner.Parent = SliderBar
+
+local SliderFill = Instance.new("Frame")
+SliderFill.Size = UDim2.new((AimFOV - 30) / (250 - 30), 0, 1, 0)
+SliderFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+SliderFill.Parent = SliderBar
+
+local FillCorner = Instance.new("UICorner")
+FillCorner.CornerRadius = UDim.new(1, 0)
+FillCorner.Parent = SliderFill
+
+local Sliding = false
+local MinFOV = 30
+local MaxFOV = 250
+
+local function UpdateSlider(input)
+    local pos = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+    AimFOV = math.floor(MinFOV + (MaxFOV - MinFOV) * pos)
+    SliderFill.Size = UDim2.new(pos, 0, 1, 0)
+    SliderLabel.Text = "FOV Size: " .. tostring(AimFOV) .. " px"
+end
+
+SliderBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        Sliding = true
+        UpdateSlider(input)
     end
 end)
 
-CreateButton("Decrease FOV (-15)", function()
-    if AimFOV > 40 then
-        AimFOV = AimFOV - 15
-        FOVLabel.Text = "Aimbot FOV Radius: " .. tostring(AimFOV) .. " px"
+SliderBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        Sliding = false
     end
 end)
 
--- 4. ESP Toggle
+UserInputService.InputChanged:Connect(function(input)
+    if Sliding and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        UpdateSlider(input)
+    end
+end)
+
+-- 3. ESP Toggle
 CreateButton("Enable Chams ESP: OFF", function(btn, stroke)
     ChamsEnabled = not ChamsEnabled
-    if ChamsEnabled then
+    if ChamsEnabled me
         btn.Text = "Enable Chams ESP: ON"
-        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
         stroke.Color = Color3.fromRGB(255, 255, 255)
     else
         btn.Text = "Enable Chams ESP: OFF"
-        btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-        stroke.Color = Color3.fromRGB(60, 60, 60)
+        btn.BackgroundColor3 = Color3.fromRGB(28, 28, 34)
+        stroke.Color = Color3.fromRGB(55, 55, 65)
     end
     UpdateChams()
 end)
